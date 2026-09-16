@@ -1,0 +1,35 @@
+@import "mixins";
+@import "variables";
+@import "detailView";
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  @include largeScreens {
+    background-color: lighten($background, 10);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+}
+#app {
+  background: linear-gradient(0deg, $elevation-2 0%, $elevation 100%);
+  color: $text-color;
+  padding: 1rem;
+  min-height: 100vh;
+  font-family: "Inter", sans-serif;
+
+  @include largeScreens {
+    width: 400px;
+    height: 700px;
+    min-height: unset;
+    overflow: auto;
+    border-radius: $border-radius;
+    box-shadow: 1px 1px 5px black;
+    box-shadow: $box-shadow;
+  }
+}
