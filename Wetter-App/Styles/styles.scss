@@ -1,6 +1,8 @@
-@import "mixins";
-@import "variables";
-@import "detailView";
+@use "sass:color";
+@use "mixins" as *;
+@use "variables" as *;
+@use "loading" as *;
+@use "detailView";
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 * {
   margin: 0;
@@ -9,7 +11,7 @@
 
 body {
   @include largeScreens {
-    background-color: lighten($background, 10);
+    background-color: color.adjust($background, $lightness: 10%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -25,11 +27,11 @@ body {
 
   @include largeScreens {
     width: 400px;
-    height: 700px;
+    height: $max-height-desktop;
     min-height: unset;
     overflow: auto;
     border-radius: $border-radius;
-    box-shadow: 1px 1px 5px black;
+    box-shadow: 1px 1px 5px rgb(0, 0, 0);
     box-shadow: $box-shadow;
   }
 }

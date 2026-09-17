@@ -1,4 +1,7 @@
-import { getCurrentWeather } from "./api.js";
+import { loadDetailView } from "./detailView.js";
+
 import "../Styles/styles.scss";
 
-getCurrentWeather("Mannheim");
+export const rootElement = document.getElementById("app");
+
+loadDetailView("Mannheim");
