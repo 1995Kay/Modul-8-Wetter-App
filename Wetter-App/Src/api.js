@@ -3,7 +3,7 @@ const API_KEY = "48bda90f4974409d91990356261609";
 
 export async function getForcastWeather(location, days = 3) {
   const response = await fetch(
-    `${API_BASE_URL}/forecast.json?key=${API_KEY}&q=${location}&lang=de&day`,
+    `${API_BASE_URL}/forecast.json?key=${API_KEY}&q=${location}&lang=de&days=3`,
   );
 
   const weatherData = await response.json();
