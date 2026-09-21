@@ -1,7 +1,11 @@
 import { getForcastWeather } from "./api";
 import { renderLoadingScreen } from "./loading";
 import { rootElement } from "./main";
-import { formatHourlyTime, formatTemparature } from "./urils";
+import {
+  formatHourlyTime,
+  formatTemparature,
+  Get24HoursForcastFromNow,
+} from "./urils";
 
 export async function loadDetailView(cityName) {
   renderLoadingScreen("Lade Wetter für " + cityName + "...");
@@ -21,8 +25,10 @@ export async function loadDetailView(cityName) {
       getTodayForecastHtml(
         currentDay.day.condition.text,
         currentDay.day.maxwind_kph,
-        currentDay.hour,
-      );
+        forecast.forecastday,
+        current.last_updated_epoch,
+      ) +
+      getForecastHtml(forecast.forecastday);
   }
 }
 
@@ -39,9 +45,19 @@ function getHeaderHtml(location, currentTemp, condition, maxTemp, minTemp) {
     `;
 }
 
-function getTodayForecastHtml(condition, maxWind, forecastHours) {
-  const hourlyForecastElements = forecastHours.map(
-    (hour, i) => `  <div class="hourly-forecast">
+function getTodayForecastHtml(
+  condition,
+  maxWind,
+  forecastdays,
+  lastUpdatedEpoch,
+) {
+  const hourlyForecastElements = Get24HoursForcastFromNow(
+    forecastdays,
+    lastUpdatedEpoch,
+  )
+    .filter((el) => el !== undefined)
+    .map(
+      (hour, i) => `  <div class="hourly-forecast">
             <div class="hourly-forecast__time">${i === 0 ? "Jetzt" : formatHourlyTime(hour.time) + " Uhr"} </div>
             <img
               src="https:${hour.condition.icon}"
@@ -50,7 +66,7 @@ function getTodayForecastHtml(condition, maxWind, forecastHours) {
             />
             <div class="hourly-forecast__temperature">${formatTemparature(hour.temp_c)}°</div>
           </div>`,
-  );
+    );
   const hourlyForecastHtml = hourlyForecastElements.join("");
   return `  <div class="today-forecast">
         <div class="today-forecast__conditions">
@@ -58,6 +74,34 @@ function getTodayForecastHtml(condition, maxWind, forecastHours) {
         </div>
         <div class="today-forecast__hours">
 ${hourlyForecastHtml}
+        </div>
+      </div>`;
+}
+
+function getForecastHtml(forecast) {
+  const forecastElements = forecast.map(
+    (forecastDay) => `<div class="forecast-day">
+              <div class="forecast-day__day">Heute</div>
+              <img
+                src="https://cdn.weatherapi.com/weather/64x64/day/176.png"
+                alt=""
+                class="forecast-day__icon" />
+              <div class="forecast-day__max-tmep">${formatTemparature(forecastDay.day.maxtemp_c)}°</div>
+              <div class="forecast-day__mintemp">${formatTemparature(forecastDay.day.mintemp_c)}°</div>
+              <div class="forecast-day__wind">${formatTemparature(
+                forecastDay.day.maxwind_kph,
+              )}</div>
+km/h
+              </div>`,
+  );
+
+  const forecastHtml = forecastElements.join("");
+  return `      <div class="forecast">
+        <div class="forecast__titel">Vorhersage für die nächsten 3 Tag:</div>
+        <div class="forecast__days">
+        ${forecastHtml}
+            </div>
+          </div>
         </div>
       </div>`;
 }
