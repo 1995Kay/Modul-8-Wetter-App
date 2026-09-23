@@ -1,19 +1,37 @@
 import { getForcastWeather } from "./api";
+import { getConditionImagePath } from "./conditions";
 import { renderLoadingScreen } from "./loading";
 import { rootElement } from "./main";
 import {
   formatHourlyTime,
   formatTemparature,
+  formatToMilitaryTime,
   Get24HoursForcastFromNow,
+  getDayOfWeek,
 } from "./urils";
 
 export async function loadDetailView(cityName) {
   renderLoadingScreen("Lade Wetter für " + cityName + "...");
   const weatherData = await getForcastWeather(cityName);
   rednerDetailView(weatherData);
+
   function rednerDetailView(weatherData) {
     const { location, current, forecast } = weatherData;
     const currentDay = forecast.forecastday[0];
+    const Astro = forecast.forecastday[0].astro;
+
+    const conditionImage = getConditionImagePath(
+      current.condition.code,
+      current.is_day !== 1,
+    );
+
+    if (conditionImage) {
+      rootElement.style = `--detail-condition-image:url(${conditionImage})`;
+      rootElement.classList.add("show-background");
+    }
+
+    rootElement.classList.add("show-background");
+
     rootElement.innerHTML =
       getHeaderHtml(
         location.name,
@@ -28,7 +46,15 @@ export async function loadDetailView(cityName) {
         forecast.forecastday,
         current.last_updated_epoch,
       ) +
-      getForecastHtml(forecast.forecastday);
+      getForecastHtml(forecast.forecastday) +
+      getMiniStatsHtml(
+        current.humidity,
+        current.feelslike_c,
+        Astro.sunrise,
+        Astro.sunset,
+        current.precip_mm,
+        current.uv,
+      );
   }
 }
 
@@ -80,15 +106,15 @@ ${hourlyForecastHtml}
 
 function getForecastHtml(forecast) {
   const forecastElements = forecast.map(
-    (forecastDay) => `<div class="forecast-day">
-              <div class="forecast-day__day">Heute</div>
+    (forecastDay, i) => `<div class="forecast-day">
+              <div class="forecast-day__day">${i === 0 ? "Heute" : getDayOfWeek(forecastDay.date)}</div>
               <img
-                src="https://cdn.weatherapi.com/weather/64x64/day/176.png"
+                src="https:${forecastDay.day.condition.icon}"
                 alt=""
                 class="forecast-day__icon" />
               <div class="forecast-day__max-tmep">${formatTemparature(forecastDay.day.maxtemp_c)}°</div>
               <div class="forecast-day__mintemp">${formatTemparature(forecastDay.day.mintemp_c)}°</div>
-              <div class="forecast-day__wind">${formatTemparature(
+              <div class="forecast-day__wind">Wind ${formatTemparature(
                 forecastDay.day.maxwind_kph,
               )}</div>
 km/h
@@ -102,6 +128,47 @@ km/h
         ${forecastHtml}
             </div>
           </div>
+        </div>
+      </div>`;
+}
+
+function getMiniStatsHtml(
+  humidity,
+  feelslike_c,
+  sunrise,
+  sunset,
+  precip,
+  uvIndex,
+) {
+  return `      <div class="mini-stats">
+        <div class="mini-stat">
+          <div class="mini-stat__heading">Feuchtigkeit</div>
+          <div class="mini-stat__value">${humidity}%</div>
+        </div>
+          
+        <div class="mini-stat">
+          <div class="mini-stat__heading">Gefühlt</div>
+          <div class="mini-stat__value">${feelslike_c}%</div>
+        </div>
+      
+        <div class="mini-stat">
+          <div class="mini-stat__heading">Sonnenaufgang</div>
+          <div class="mini-stat__value">${formatToMilitaryTime(sunrise)} Uhr</div>
+        </div>
+      
+        <div class="mini-stat">
+          <div class="mini-stat__heading">Sonnenuntergang</div>
+          <div class="mini-stat__value">${formatToMilitaryTime(sunset)} Uhr</div>
+        </div>
+      
+        <div class="mini-stat">
+          <div class="mini-stat__heading">Niederschlag</div>
+          <div class="mini-stat__value">${precip}</div>
+        </div>
+     
+        <div class="mini-stat">
+          <div class="mini-stat__heading">UV-Index</div>
+          <div class="mini-stat__value">${uvIndex}</div>
         </div>
       </div>`;
 }

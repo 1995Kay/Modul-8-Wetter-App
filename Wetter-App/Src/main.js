@@ -4,4 +4,4 @@ import "../Styles/styles.scss";
 
 export const rootElement = document.getElementById("app");
 
-loadDetailView("Neuhof");
+// loadDetailView("Antalya");

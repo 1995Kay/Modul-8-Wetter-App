@@ -18,8 +18,6 @@ export function Get24HoursForcastFromNow(forecast, lastUpdateEpoch) {
     (hour) => hour.time_epoch > lastUpdateEpoch,
   );
 
-  console.log(firstFutureTimeIndex);
-
   for (let i = firstFutureTimeIndex - 1; i < todaysForecast.length; i++) {
     newForecast.push(todaysForecast[i]);
   }
@@ -32,4 +30,27 @@ export function Get24HoursForcastFromNow(forecast, lastUpdateEpoch) {
   }
 
   return newForecast;
+}
+
+export function getDayOfWeek(date) {
+  const dateObj = new Date(date);
+  const days = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+
+  return days[dateObj.getDay()];
+}
+
+export function formatToMilitaryTime(time) {
+  const isAM = time.includes("AM");
+
+  const TimeWithoutSuffix = time.split(" ")[0];
+
+  if (isAM) {
+    return TimeWithoutSuffix;
+  }
+
+  const [hour, minutes] = TimeWithoutSuffix.split(":");
+
+  const newHour = Number(hour) + 12;
+
+  return newHour + ":" + minutes;
 }
